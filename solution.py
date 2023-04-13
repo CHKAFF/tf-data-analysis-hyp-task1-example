@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.stats import binom_test
 
 from scipy.stats import norm
 
@@ -12,16 +11,9 @@ def solution(x_success: int,
     conv_ctrl = x_success / x_cnt
     conv_test = y_success / y_cnt
 
-    # standard deviation of the test group
-    std_dev_test = (conv_test * (1 - conv_test) / y_cnt) ** 0.5
+    # стандартное отклонение для данных контрольной группы
+    std_ctrl = (conv_ctrl * (1 - conv_ctrl) / y_cnt) ** 0.5
 
-    # z-score calculation
-    z_score = (conv_test - conv_ctrl) / std_dev_test
-
-    # significance level
-    alpha = 0.05
-
-    # critical z-value
-    z_crit = norm.ppf(alpha)
-
-    return z_score < z_crit
+    z = (conv_test - conv_ctrl) / std_ctrl
+    p_value = 2 * (1 - norm.cdf(abs(z)))
+    return p_value < 0.05
