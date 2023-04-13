@@ -1,15 +1,27 @@
 import numpy as np
 from scipy.stats import binom_test
 
+from scipy.stats import norm
+
 chat_id = 303247798
 
 def solution(x_success: int, 
              x_cnt: int, 
              y_success: int, 
              y_cnt: int) -> bool:
-    control_conversion = x_success / x_cnt
-    test_conversion = y_success / y_cnt
+    conv_ctrl = x_success / x_cnt
+    conv_test = y_success / y_cnt
 
-    p_value = binom_test(y_success, y_cnt, control_conversion)
+    # standard deviation of the test group
+    std_dev_test = (conv_test * (1 - conv_test) / y_cnt) ** 0.5
 
-    return p_value < 0.05
+    # z-score calculation
+    z_score = (conv_test - conv_ctrl) / std_dev_test
+
+    # significance level
+    alpha = 0.05
+
+    # critical z-value
+    z_crit = norm.ppf(alpha)
+
+    return z_score < z_crit
