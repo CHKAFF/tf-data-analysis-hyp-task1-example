@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 from scipy.stats import norm
 
@@ -8,12 +9,18 @@ def solution(x_success: int,
              x_cnt: int, 
              y_success: int, 
              y_cnt: int) -> bool:
-    conv_ctrl = x_success / x_cnt
-    conv_test = y_success / y_cnt
+    control_conv = x_success / x_cnt
+    test_conv = y_success / y_cnt
 
-    # стандартное отклонение для данных контрольной группы
-    std_ctrl = (conv_ctrl * (1 - conv_ctrl) / y_cnt) ** 0.5
+    # calculate total conversion rate and pooled standard error
+    total_sales = x_success + y_success
+    total_clicks = x_cnt + y_cnt
+    total_conv = total_sales / total_clicks
+    SE = math.sqrt(total_conv * (1 - total_conv) * (1/x_cnt + 1/y_cnt))
 
-    z = (conv_test - conv_ctrl) / std_ctrl
-    p_value = 2 * (1 - norm.cdf(abs(z)))
-    return p_value < 0.05
+    # calculate z-score and p-value
+    z_score = (control_conv - test_conv) / SE
+    p_val = norm.sf(abs(z_score)) * 2
+
+    # return True if we can reject null hypothesis
+    return p_val < 0.05
